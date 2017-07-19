@@ -1,4 +1,7 @@
+package org.markmal.fanera;
+
 /*****************************************************************************
+
  *                        J3D.org Copyright (c) 2000
  *                               Java Source
  *

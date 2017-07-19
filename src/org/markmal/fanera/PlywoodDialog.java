@@ -1,3 +1,5 @@
+package org.markmal.fanera;
+
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;

@@ -1,3 +1,5 @@
+package org.markmal.fanera;
+
 import java.awt.GraphicsConfiguration;
 import java.awt.image.BufferedImage;
 

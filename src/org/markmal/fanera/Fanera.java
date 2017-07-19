@@ -1,3 +1,5 @@
+package org.markmal.fanera;
+
 import com.sun.j3d.loaders.Scene;
 import com.sun.j3d.utils.behaviors.mouse.MouseBehaviorCallback;
 import com.sun.j3d.utils.behaviors.mouse.MouseRotate; 

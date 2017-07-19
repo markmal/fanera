@@ -18,8 +18,16 @@ Features:
 The program is written in Java and works in any OS that supports Java 8 SE.
 Requires:
 - Java SE v8 or later, JRE
-- Java 3D™ 1.5.1 API (by Oracle, free)
+- Java 3D™ 1.5.1 API (by Oracle, free). Download from Oracle and install
 - Java™ Advanced Imaging API v1.1.2_01 or later (by Oracle, free)
+	Download from Oracle and install
+	from there you need: jai_core.jar, jai_codec.jar
 - Open j3d libraries (open source, free)
-
+	Browse: http://code.j3d.org/download.html
+	Download: ftp://ftp.j3d.org/pub/code/j3d-org-code-1.1.0.zip or later
+		from there you need: 
+			jars/j3d-org-loader-stl_1.1.0.jar
+			jars/org.j3d.core_1.1.0.jar
+		
 For inforation: Fanera translates from Russian (Фанера) as Plywood.
+

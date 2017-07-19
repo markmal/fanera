@@ -1,3 +1,5 @@
+package org.markmal.fanera;
+
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -19,9 +21,11 @@ import javax.media.j3d.Canvas3D;
 import javax.media.j3d.ImageComponent;
 import javax.media.j3d.ImageComponent2D;
 
+/*
 import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageEncoder;
 import com.sun.media.jai.codec.PNGEncodeParam;
+*/
 
 class ImagePrinter implements Printable, ImageObserver {
   
@@ -37,7 +41,7 @@ class ImagePrinter implements Printable, ImageObserver {
       return Printable.NO_SUCH_PAGE;
     }
     BufferedImage pgBI = pages.get(pi);
-    saveToPNG(pgBI,5000, "print_"+(new Integer(pi).toString()));
+    //saveToPNG(pgBI,5000, "print_"+(new Integer(pi).toString()));
     
     Graphics2D g2d = (Graphics2D) g;
     //g2d.translate(pf.getImageableX(), pf.getImageableY());
@@ -96,6 +100,7 @@ public ImagePrinter(ArrayList<BufferedImage> pages,
 	this.pageFormat = pageFormat;
 }
 
+/*
 protected void saveToPNG(BufferedImage bufferedImage, int pixelsPerMeter, String fileName){
 	PNGEncodeParam  param = PNGEncodeParam.getDefaultEncodeParam(bufferedImage);
 	param.setPhysicalDimension(pixelsPerMeter, pixelsPerMeter, 1); //set pixel size to 0.1mm 
@@ -116,6 +121,6 @@ protected void saveToPNG(BufferedImage bufferedImage, int pixelsPerMeter, String
 		e.printStackTrace();
 	}
 }
-
+*/
 
 }
