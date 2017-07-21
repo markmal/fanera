@@ -1,0 +1,12 @@
+			      
+                      Core Licensing information
+
+This codebase contains a lot of code, licensed under a number of different
+licenses, dependent on the intended use. The text for each license may be
+found in the same directory as this file is located.
+
+Each directory is given relative to the root of the tree.
+
+GNU LGPL (LGPL.txt):
+  All code under the /src directory
+

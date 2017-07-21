@@ -1,5 +1,15 @@
 package org.markmal.fanera;
 
+/**
+ * This class sets properties of plywood.
+ * 
+ * @license GNU LGPL (LGPL.txt):
+ * 
+ * @author Mark Malakanov
+ * @version 1.2.2.10
+ * 
+ **/
+
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;

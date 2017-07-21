@@ -1,5 +1,18 @@
 package org.markmal.fanera;
 
+/**
+ * This program loads an STL file (for example a model of wing exported from XFLR5) 
+ * and fills it with plywood texture.
+ * So it looks like the model is carved out of plywood.
+ * Then it can be printed in natural sizes.
+ * 
+ * @license GNU LGPL (LGPL.txt):
+ * 
+ * @author Mark Malakanov
+ * @version 1.2.2.10
+ * 
+ **/
+
 import com.sun.j3d.loaders.Scene;
 import com.sun.j3d.utils.behaviors.mouse.MouseBehaviorCallback;
 import com.sun.j3d.utils.behaviors.mouse.MouseRotate; 
@@ -122,6 +135,7 @@ public class Fanera extends Frame
 	//TODO - add as program params
 	boolean sceneAntialiasingEnable = false;
 	boolean lightsEnable = true;
+	Color3f backgroundColor3f = new Color3f(0.75f,0.75f,0.75f); //gray
 	
 	private int ColorARGB8(int A, int R, int G, int B){
 		return ( A << 24) | (R << 16) | (G << 8) | B ;
@@ -136,11 +150,10 @@ public class Fanera extends Frame
 	    
 	    BufferedImage[] img = new BufferedImage[texSz_r];
 	    
-	    int wood = ColorARGB8(0,191,191,15);
+	    int wood = ColorARGB8(0,191,191,75);
 	    int glue = ColorARGB8(0,63,63,15);
 	    int grid = ColorARGB8(0,181,100,0);
-	    int gridB = ColorARGB8(0,16,16,16);
-	    int rgb;
+	    
 	    BufferedImage lyr_wood = new BufferedImage(texSz_s,texSz_t, BufferedImage.TYPE_INT_ARGB);
 	    BufferedImage lyr_glue = new BufferedImage(texSz_s,texSz_t, BufferedImage.TYPE_INT_ARGB);
 
@@ -236,8 +249,9 @@ public class Fanera extends Frame
 	    
 	    canvas3D.addMouseWheelListener(this);
 	    // on met le plan de projection en arriere par rapport a l'origine 
-	    objRoot =new BranchGroup();         
-	    addBackground();
+	    objRoot = new BranchGroup();         
+	    
+	    addBackground(backgroundColor3f);
 	    
 		if (lightsEnable)
 		  addLights(objRoot);
@@ -326,11 +340,17 @@ public class Fanera extends Frame
         b.addChild(dirLight);
       }
 
-    protected void addBackground() {
-	    Background background = new Background(new Color3f(0.75f,0.75f,0.75f));
+    Background background;
+    protected void addBackground(Color3f bgColor3f) {
+	    background = new Background(bgColor3f);
+	    background.setCapability(Background.ALLOW_COLOR_WRITE);
 	    BoundingSphere sphere = new BoundingSphere(new Point3d(0,0,0), 100.0);
 	    background.setApplicationBounds(sphere);
-	    this.objRoot.addChild(background);
+	    objRoot.addChild(background);
+    }
+
+    protected void changeBackground(Color3f bgColor3f) {
+	    background.setColor(bgColor3f);
     }
     
     protected Material buildMaterial() {
@@ -635,14 +655,15 @@ public class Fanera extends Frame
 		int pixelsPerMeter = (int)Math.round( dim.width * ss);
 		System.out.printf("ScreenScale:%f pixelsPerMeter:%d\n",ss,pixelsPerMeter);
 
-		BufferedImage bImage = offScreenCanvas3D.doRender(
-        		dim.width,	dim.height);
+		
+		changeBackground(new Color3f(1f,1f,1f)); //white
+		
+		BufferedImage bImage = offScreenCanvas3D.doRender(dim.width, dim.height);
 
-        //saveToPNG(bImage, pixelsPerMeter);
-        
         new ImageDisplayer(bImage, pixelsPerMeter);
-        //ImagePrinter printer = new ImagePrinter(bImage);
-        //printer.print();
+        
+        changeBackground(backgroundColor3f);
+        
     }
 	
     protected void saveToPNG(BufferedImage bufferedImage, int pixelsPerMeter){

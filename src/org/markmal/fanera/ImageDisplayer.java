@@ -1,8 +1,26 @@
 package org.markmal.fanera;
 
+/**
+ * This class previews 2D image and allows to:
+ * - select printer and page properties
+ * - adjust to pages grid
+ * - select page(s) to print
+ * - print in physical sizes
+ * - select arbitrary fragment
+ * - save fragment or selected page(s) to PNG file(s) (with keeping physical sizes) 
+ * 
+ * @license GNU LGPL (LGPL.txt):
+ * 
+ * @author Mark Malakanov
+ * @version 1.2.2.10
+ * 
+ **/
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FileDialog;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
@@ -21,6 +39,7 @@ import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -46,6 +65,7 @@ import com.sun.media.jai.codec.ImageEncoder;
 import com.sun.media.jai.codec.PNGEncodeParam;
 
 class ImageDisplayer extends JFrame implements ActionListener {
+	private static final long serialVersionUID = 1L;
 	PrinterJob printJob;
 	PageFormat pageFormat;
 
@@ -112,12 +132,12 @@ class ImageDisplayer extends JFrame implements ActionListener {
 		int c = 0;
 		for (int p = 0; p < printedPages.size(); p++) {
 			PrintedPage pg = printedPages.get(p);
-				if (pg.isSelected) c++;
-			}
+			if (pg.isSelected)
+				c++;
+		}
 		return c;
 	}
 
-	
 	private class ImagePanel extends JPanel implements MouseListener, MouseWheelListener, MouseMotionListener {
 		private static final long serialVersionUID = 1L;
 
@@ -156,12 +176,8 @@ class ImageDisplayer extends JFrame implements ActionListener {
 
 		private void drawFragment(Graphics g) {
 			g.setColor(Color.GREEN);
-			g.drawRect(
-					(int) Math.round(scale * fragmentX), 
-					(int) Math.round(scale * fragmentY),
-					(int) Math.round(scale * fragmentWidth),
-					(int) Math.round(scale * fragmentHeight)
-					);
+			g.drawRect((int) Math.round(scale * fragmentX), (int) Math.round(scale * fragmentY),
+					(int) Math.round(scale * fragmentWidth), (int) Math.round(scale * fragmentHeight));
 		}
 
 		private void drawPrintGrid(Graphics g) {
@@ -226,7 +242,6 @@ class ImageDisplayer extends JFrame implements ActionListener {
 			int y = e.getY();
 			System.out.printf("Click: %d,%d\n", x, y);
 
-			
 			for (int p = 0; p < printedPages.size(); p++) {
 				PrintedPage pg = printedPages.get(p);
 
@@ -311,7 +326,6 @@ class ImageDisplayer extends JFrame implements ActionListener {
 		}
 	}
 
-	
 	void printSelectedPages() {
 		ArrayList<BufferedImage> pages = new ArrayList<BufferedImage>();
 		for (int p = 0; p < printedPages.size(); p++) {
@@ -335,38 +349,46 @@ class ImageDisplayer extends JFrame implements ActionListener {
 	}
 
 	String savePageImageFileName = "page_";
+
 	void saveSelectedPages() {
+		String fileName = saveFileDialog(savePageImageFileName);
+		if (fileName == null)
+			return;
+
 		int i = 1;
 		for (int p = 0; p < printedPages.size(); p++) {
 			PrintedPage pg = printedPages.get(p);
 
 			if (pg.isSelected) {
-				BufferedImage pbi = new BufferedImage(pg.width, pg.height, BufferedImage.TYPE_INT_ARGB);
+				BufferedImage pbi = new BufferedImage(pg.width, pg.height, bImage.getType());
+				// BufferedImage.TYPE_INT_ARGB);
 				Graphics g = pbi.getGraphics();
 				g.drawImage(bImage, 0, 0, pg.width - 1, pg.height - 1, pg.x - indentX, pg.y - indentY,
 						pg.x - indentX + pg.width - 1, pg.y - indentY + pg.height - 1, null);
 
 				System.out.printf("Save: %d,%d\n", pg.gridX, pg.gridY);
-				saveToPNG(pbi, pixelsPerMeter , String.format(savePageImageFileName+"_%02d", i) );
+				saveToPNG(pbi, pixelsPerMeter, String.format(fileName + "%02d", i));
 				i++;
 			}
 		}
 	}
-	
-	String saveFragmentImageFileName = "fragment";
-	void saveSelectedFragment() {
-				BufferedImage pbi = new BufferedImage(fragmentWidth, fragmentHeight, BufferedImage.TYPE_INT_ARGB);
-				Graphics g = pbi.getGraphics();
-				g.drawImage(bImage, 0, 0, 
-						fragmentWidth-1, fragmentHeight-1, 
-						fragmentX, fragmentY,
-						fragmentX+fragmentWidth-1, fragmentY+fragmentHeight-1,
-						null);
 
-				System.out.printf("Save: %s %d,%d %d,%d\n", saveFragmentImageFileName,
-						fragmentX, fragmentY,
-						fragmentWidth, fragmentHeight);
-				saveToPNG(pbi, pixelsPerMeter , saveFragmentImageFileName);
+	String saveFragmentImageFileName = "fragment";
+
+	void saveSelectedFragment() {
+		String fileName = saveFileDialog(saveFragmentImageFileName);
+		if (fileName == null)
+			return;
+
+		BufferedImage pbi = new BufferedImage(fragmentWidth, fragmentHeight, bImage.getType());
+		// BufferedImage.TYPE_INT_ARGB);
+		Graphics g = pbi.getGraphics();
+		g.drawImage(bImage, 0, 0, fragmentWidth - 1, fragmentHeight - 1, fragmentX - indentX, fragmentY - indentY,
+				fragmentX - indentX + fragmentWidth - 1, fragmentY - indentY + fragmentHeight - 1, null);
+
+		System.out.printf("Save: %s %d,%d %d,%d\n", saveFragmentImageFileName, fragmentX, fragmentY, fragmentWidth,
+				fragmentHeight);
+		saveToPNG(pbi, pixelsPerMeter, fileName);
 	}
 
 	/*
@@ -417,7 +439,6 @@ class ImageDisplayer extends JFrame implements ActionListener {
 			JOptionPane.showMessageDialog(this, "1. Select printer first.\n" + "2. adjust image to fit page(s).\n"
 					+ "3. Select pages to print (they will be highlighted red).\n" + "4. Print.");
 		}
-
 
 	}
 
@@ -573,7 +594,7 @@ class ImageDisplayer extends JFrame implements ActionListener {
 		bottomPanel.add(new JSeparator());
 		bottomPanel.add(scaleLabel);
 		scaleLabel.setText(String.format("Scale: %7.5f", scale));
-		
+
 		enableButtons();
 
 	}
@@ -585,11 +606,24 @@ class ImageDisplayer extends JFrame implements ActionListener {
 			saveAsImagesButton.setEnabled(b);
 		}
 		if (selectionMode == SELECTION_MODE_FRAGMENT) {
-			boolean b = (fragmentWidth>0) && (fragmentHeight>0);
+			boolean b = (fragmentWidth > 0) && (fragmentHeight > 0);
 			printButton.setEnabled(b);
 			saveAsImagesButton.setEnabled(b);
 		}
 
 	}
-	
+
+	public String saveFileDialog(String defaultFileName) {
+		FileDialog openFileDialog = new FileDialog(new Frame(), "Save", FileDialog.SAVE);
+		openFileDialog.setFilenameFilter((File dir, String name)->name.endsWith(".png"));
+		openFileDialog.setDirectory( System.getProperty("user.dir") );
+		openFileDialog.setFile(defaultFileName);
+		openFileDialog.setVisible(true);
+		String fileName = openFileDialog.getFile();
+		String dirName = openFileDialog.getDirectory();
+		if ((fileName == null) || (dirName == null))
+			return null;
+		return dirName + File.separatorChar + fileName;
+	}
+
 }

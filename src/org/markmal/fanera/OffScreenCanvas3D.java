@@ -1,5 +1,16 @@
 package org.markmal.fanera;
 
+/**
+ * This class captures offscreen 3D canvas to 2D image for further printing / saving.
+ * 
+ * @license GNU LGPL (LGPL.txt):
+ * 
+ * @author Mark Malakanov
+ * @version 1.2.2.10
+ * 
+ **/
+
+import java.awt.Color;
 import java.awt.GraphicsConfiguration;
 import java.awt.image.BufferedImage;
 
@@ -19,8 +30,10 @@ class OffScreenCanvas3D extends Canvas3D {
     BufferedImage bImage = new BufferedImage(width, height,
         BufferedImage.TYPE_INT_ARGB);
     ImageComponent2D buffer = new ImageComponent2D(
-        ImageComponent.FORMAT_RGBA, bImage);
+        ImageComponent.FORMAT_RGBA,
+        bImage);
 
+    setBackground(Color.WHITE);
     setOffScreenBuffer(buffer);
     renderOffScreenBuffer();
     waitForOffScreenRendering();

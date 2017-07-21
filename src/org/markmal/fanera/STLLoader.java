@@ -41,7 +41,11 @@ import org.j3d.loaders.stl.*;
  * recognized if an invalid amount of data is contained in the file.<p>
  * @author  Dipl. Ing. Paul Szawlowski -
  *          University of Vienna, Dept. of Medical Computer Sciences
- * @version $Revision: 1.2 $
+ * 
+ * @author mark
+ * @version $Revision: 1.3 $
+ * Set actual normals of triangles using original STL normals just for a general direction.
+ * Because XFLR5 exports to STL with all normals to North/South/West/East
  */
 public class STLLoader extends LoaderBase
 {

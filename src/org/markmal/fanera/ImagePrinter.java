@@ -1,5 +1,15 @@
 package org.markmal.fanera;
 
+/**
+ * This class does actual printing 
+ * 
+ * @license GNU LGPL (LGPL.txt):
+ * 
+ * @author Mark Malakanov
+ * @version 1.2.2.10
+ * 
+ **/
+
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -61,7 +71,6 @@ class ImagePrinter implements Printable, ImageObserver {
   }
 
   void print() {
-    //pageFormat.setOrientation(PageFormat.LANDSCAPE);
     pageFormat = printJob.validatePage(pageFormat);
     printJob.setPrintable(this, pageFormat);
     //if (printJob.printDialog()) {
@@ -99,28 +108,5 @@ public ImagePrinter(ArrayList<BufferedImage> pages,
 	this.printJob = printJob;
 	this.pageFormat = pageFormat;
 }
-
-/*
-protected void saveToPNG(BufferedImage bufferedImage, int pixelsPerMeter, String fileName){
-	PNGEncodeParam  param = PNGEncodeParam.getDefaultEncodeParam(bufferedImage);
-	param.setPhysicalDimension(pixelsPerMeter, pixelsPerMeter, 1); //set pixel size to 0.1mm 
-	FileOutputStream bufferedOutputStream;
-	try {
-		bufferedOutputStream = new FileOutputStream(fileName+".png");
-    	ImageEncoder encoder= ImageCodec.createImageEncoder("PNG", 
-    			bufferedOutputStream, param); 
-    	
-    	try {
-			encoder.encode(bufferedImage);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	} catch (FileNotFoundException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-}
-*/
 
 }
