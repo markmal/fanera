@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project fanera with libraries in sub-folder">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <!--define folder properties-->
+	<property name="version" value="1.2.2"/>
+	<property name="dir.projectdir" value="."/>
+    <property name="dir.workspace" value="/home/mark/eclipse-workspace"/>
+    <property name="dir.builddir" value="/home/mark/MyProjects/fanera/build"/>
+    <property name="dir.jarfile" value="${dir.builddir}"/>
+    <target name="create_run_jar">
+        <jar destfile="${dir.builddir}/fanera.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.markmal.fanera.Fanera"/>
+                <attribute name="Class-Path" value=". lib/j3d-org-loader-core_1.1.0.jar lib/j3d-org-loader-stl_1.1.0.jar lib/jai_codec.jar lib/jai_core.jar lib/org.j3d.core_1.1.0.jar lib/j3dcore.jar lib/j3dutils.jar lib/vecmath.jar"/>
+            	<attribute name="Class-Path64" value=". lib/amd64"/>
+                <attribute name="Class-Path32" value=". lib/i386"/>
+            </manifest>
+            <fileset dir="${dir.projectdir}/bin"/>
+        </jar>
+        <delete dir="${dir.builddir}/lib/i386"/>
+        <delete dir="${dir.builddir}/lib/amd64"/>
+        <delete dir="${dir.builddir}/lib"/>
+        <mkdir dir="${dir.builddir}/lib"/>
+        <mkdir dir="${dir.builddir}/lib/amd64"/>
+        <mkdir dir="${dir.builddir}/lib/i386"/>
+        <copy file="${dir.projectdir}/org.j3d/jars/j3d-org-loader-core_1.1.0.jar" todir="${dir.builddir}/lib"/>
+        <copy file="${dir.projectdir}/org.j3d/jars/j3d-org-loader-stl_1.1.0.jar" todir="${dir.builddir}/lib"/>
+        <copy file="${dir.projectdir}/oracle/jai/lib/jai_codec.jar" todir="${dir.builddir}/lib"/>
+        <copy file="${dir.projectdir}/oracle/jai/lib/jai_core.jar" todir="${dir.builddir}/lib"/>
+        <copy file="${dir.projectdir}/org.j3d/jars/org.j3d.core_1.1.0.jar" todir="${dir.builddir}/lib"/>
+        <copy file="${dir.projectdir}/oracle/java3d/lib/ext/j3dcore.jar" todir="${dir.builddir}/lib"/>
+        <copy file="${dir.projectdir}/oracle/java3d/lib/ext/j3dutils.jar" todir="${dir.builddir}/lib"/>
+        <copy file="${dir.projectdir}/oracle/java3d/lib/ext/vecmath.jar" todir="${dir.builddir}/lib"/>
+        <copy file="${dir.projectdir}/oracle/java3d/lib/amd64/libj3dcore-ogl.so" todir="${dir.builddir}/lib/amd64"/>
+        <copy file="${dir.projectdir}/oracle/java3d/lib/i386/libj3dcore-ogl.so" todir="${dir.builddir}/lib/i386"/>
+        <copy file="${dir.projectdir}/oracle/java3d/lib/i386/libj3dcore-ogl-cg.so" todir="${dir.builddir}/lib/i386"/>
+        <copy file="${dir.projectdir}/fanera.sh" todir="${dir.builddir}"/>
+        <copy file="${dir.projectdir}/LICENSE" todir="${dir.builddir}"/>
+        <copy file="${dir.projectdir}/LGPL.txt" todir="${dir.builddir}"/>
+        <copy file="${dir.projectdir}/README.md" todir="${dir.builddir}"/>
+    	<copy file="${dir.projectdir}/MainWing_H105_D07.stl" todir="${dir.builddir}"/>
+    	
+    	<buildnumber/>
+    	
+    	<chmod file="${dir.builddir}/fanera.sh" perm="755"/>        
+    	
+        <delete file="${dir.projectdir}/fanera-${version}.${build.number}.tgz"/>
+    	<tar destfile="${dir.projectdir}/fanera-${version}.${build.number}.tgz" 
+    		basedir="${dir.builddir}" compression="gzip" excludes="fanera.sh">
+    		<tarfileset dir="${dir.builddir}" includes="fanera.sh" filemode="755"/>
+    	</tar>
+
+    	<delete file="${dir.projectdir}/fanera-${version}.${build.number}.zip"/>
+        <zip destfile="${dir.projectdir}/fanera-${version}.${build.number}.zip"
+        	basedir="${dir.builddir}" 
+        	excludes="lib/amd64/*,lib/i386/*,lib/amd64,lib/i386,fanera.sh"/> 
+    	
+        
+    </target>
+</project>
