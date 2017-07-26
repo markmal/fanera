@@ -116,7 +116,7 @@ public class Fanera extends Frame
 	 */
 	private static final long serialVersionUID = 1L;
 
-	static final String RELEASE="1.3.1.17";
+	static final String RELEASE="1.3.2.18";
 	
     BranchGroup sceneGroup; 
     BranchGroup objRoot;

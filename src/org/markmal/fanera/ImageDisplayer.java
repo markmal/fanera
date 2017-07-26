@@ -339,6 +339,23 @@ class ImageDisplayer extends JFrame implements ActionListener {
 		}
 	}
 
+	void drawCorners(Graphics2D g, PrintedPage pg) {
+		int cornerLegLen = (int) Math.round(this.pixelsPerMeter * 0.02); // 2cm
+		int w = pg.width-1;
+		int h = pg.height-1;
+		g.setColor(Color.BLACK);
+		g.setStroke(new BasicStroke(1));
+		g.drawLine(0, 0, cornerLegLen, 0);
+		g.drawLine(0, 0, 0, cornerLegLen);
+		g.drawLine(w-cornerLegLen, 0, w, 0);
+		g.drawLine(w, 0, w, cornerLegLen);
+		g.drawLine(0, h, cornerLegLen, h);
+		g.drawLine(0, h-cornerLegLen, 0, h);
+		g.drawLine(w-cornerLegLen, h, w, h);
+		g.drawLine(w, h-cornerLegLen, w, h);
+	}
+
+	
 	void printSelectedPages() {
 		ArrayList<BufferedImage> pages = new ArrayList<BufferedImage>();
 		for (int p = 0; p < printedPages.size(); p++) {
@@ -346,10 +363,12 @@ class ImageDisplayer extends JFrame implements ActionListener {
 
 			if (pg.isSelected) {
 				BufferedImage pbi = new BufferedImage(pg.width, pg.height, BufferedImage.TYPE_INT_ARGB);
-				Graphics g = pbi.getGraphics();
+				Graphics2D g = (Graphics2D)pbi.getGraphics();
 				g.drawImage(bImage, 0, 0, pg.width - 1, pg.height - 1, pg.x - indentX, pg.y - indentY,
 						pg.x - indentX + pg.width - 1, pg.y - indentY + pg.height - 1, null);
 				pages.add(pbi);
+				
+				drawCorners(g, pg);
 
 				System.out.printf("Print: %d,%d\n", pg.gridX, pg.gridY);
 			}
@@ -373,10 +392,10 @@ class ImageDisplayer extends JFrame implements ActionListener {
 			if (pg.isSelected) {
 				BufferedImage pbi = new BufferedImage(pg.width, pg.height, bImage.getType());
 				// BufferedImage.TYPE_INT_ARGB);
-				Graphics g = pbi.getGraphics();
+				Graphics2D g = (Graphics2D)pbi.getGraphics();
 				g.drawImage(bImage, 0, 0, pg.width - 1, pg.height - 1, pg.x - indentX, pg.y - indentY,
 						pg.x - indentX + pg.width - 1, pg.y - indentY + pg.height - 1, null);
-
+				drawCorners(g, pg);
 				System.out.printf("Save: %d,%d\n", pg.gridX, pg.gridY);
 				saveToPNG(pbi, pixelsPerMeter, String.format(fileName + "%02d", i));
 				i++;
