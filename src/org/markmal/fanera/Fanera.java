@@ -111,7 +111,12 @@ public class Fanera extends Frame
 		MouseListener, MouseMotionListener, MouseWheelListener, 
 		CapturedImageObserver, MouseBehaviorCallback 
 {	    
-	static final String RELEASE="1.3.1.15";
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	static final String RELEASE="1.3.1.17";
 	
     BranchGroup sceneGroup; 
     BranchGroup objRoot;
@@ -787,6 +792,7 @@ public class Fanera extends Frame
 	public static void checkNewRelease() {
 		String ghrUrl = "https://api.github.com/repos/markmal/fanera/releases";
 		GitHubReleaseChecker ghrc = new GitHubReleaseChecker(ghrUrl);
+		if (ghrc.releasesCollection == null) return;
 		GitHubRelease ghr = ghrc.findLatestRelease();
 		
 		if (ghrc.compareReleaseStrings(RELEASE, ghr.tag_name) == 1) {
@@ -817,9 +823,7 @@ public class Fanera extends Frame
 	
 	public static void main(String args[]) 
     {
-		checkNewRelease();
-		if (1==1)
-			return;
+			checkNewRelease();
 		
             Fanera myApp=new Fanera("MainWing_H105_D07.stl"); 
             //myApp.setLocationRelativeTo(null); 
