@@ -1,1 +1,18 @@
 /bin/
+/org.j3d/
+/oracle/
+/tmp/
+/lib/
+/jogamp/
+/jars/
+/build/
+/*.zip
+/*.tgz
+/*.jar
+/*.png
+/.classpath
+/.gitignore
+/.project
+/Main Wing-E817.stl
+/MainWing-E818.stl
+/Main_Wing-H105.stl
