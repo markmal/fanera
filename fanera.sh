@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#JAVA=$(which java)
-JAVA=~/opt/jdk1.8.0_131/bin/java
+JAVA=$(which java)
+#JAVA=~/opt/jdk1.8.0_131/bin/java
 $JAVA -version 2>&1| grep -i '64-Bit' >/dev/null 2>&1
 if [ $? -eq 0 ]; then ARCH=amd64; else ARCH=i386; fi
 

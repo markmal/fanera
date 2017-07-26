@@ -3,7 +3,7 @@
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
     <!--define folder properties-->
-	<property name="version" value="1.2.2"/>
+	<property name="version" value="1.3.1"/>
 	<property name="dir.projectdir" value="."/>
     <property name="dir.workspace" value="/home/mark/eclipse-workspace"/>
     <property name="dir.builddir" value="/home/mark/MyProjects/fanera/build"/>
@@ -24,6 +24,7 @@
         <mkdir dir="${dir.builddir}/lib"/>
         <mkdir dir="${dir.builddir}/lib/amd64"/>
         <mkdir dir="${dir.builddir}/lib/i386"/>
+        <copy file="${dir.projectdir}/jars/gson-2.8.1.jar" todir="${dir.builddir}/lib"/>
         <copy file="${dir.projectdir}/org.j3d/jars/j3d-org-loader-core_1.1.0.jar" todir="${dir.builddir}/lib"/>
         <copy file="${dir.projectdir}/org.j3d/jars/j3d-org-loader-stl_1.1.0.jar" todir="${dir.builddir}/lib"/>
         <copy file="${dir.projectdir}/oracle/jai/lib/jai_codec.jar" todir="${dir.builddir}/lib"/>
@@ -31,11 +32,13 @@
         <copy file="${dir.projectdir}/org.j3d/jars/org.j3d.core_1.1.0.jar" todir="${dir.builddir}/lib"/>
         <copy file="${dir.projectdir}/oracle/java3d/lib/ext/j3dcore.jar" todir="${dir.builddir}/lib"/>
         <copy file="${dir.projectdir}/oracle/java3d/lib/ext/j3dutils.jar" todir="${dir.builddir}/lib"/>
-        <copy file="${dir.projectdir}/oracle/java3d/lib/ext/vecmath.jar" todir="${dir.builddir}/lib"/>
+    	<copy file="${dir.projectdir}/oracle/java3d/lib/ext/vecmath.jar" todir="${dir.builddir}/lib"/>
         <copy file="${dir.projectdir}/oracle/java3d/lib/amd64/libj3dcore-ogl.so" todir="${dir.builddir}/lib/amd64"/>
         <copy file="${dir.projectdir}/oracle/java3d/lib/i386/libj3dcore-ogl.so" todir="${dir.builddir}/lib/i386"/>
         <copy file="${dir.projectdir}/oracle/java3d/lib/i386/libj3dcore-ogl-cg.so" todir="${dir.builddir}/lib/i386"/>
-        <copy file="${dir.projectdir}/fanera.sh" todir="${dir.builddir}"/>
+
+    	<copy file="${dir.projectdir}/fanera.sh" todir="${dir.builddir}"/>
+        <copy file="${dir.projectdir}/fanera.cmd" todir="${dir.builddir}"/>
         <copy file="${dir.projectdir}/LICENSE" todir="${dir.builddir}"/>
         <copy file="${dir.projectdir}/LGPL.txt" todir="${dir.builddir}"/>
         <copy file="${dir.projectdir}/README.md" todir="${dir.builddir}"/>
@@ -47,7 +50,7 @@
     	
         <delete file="${dir.projectdir}/fanera-${version}.${build.number}.tgz"/>
     	<tar destfile="${dir.projectdir}/fanera-${version}.${build.number}.tgz" 
-    		basedir="${dir.builddir}" compression="gzip" excludes="fanera.sh">
+    		basedir="${dir.builddir}" compression="gzip" excludes="fanera.sh,fanera.cmd">
     		<tarfileset dir="${dir.builddir}" includes="fanera.sh" filemode="755"/>
     	</tar>
 

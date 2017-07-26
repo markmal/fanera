@@ -9,7 +9,6 @@ package org.markmal.fanera;
  * @license GNU LGPL (LGPL.txt):
  * 
  * @author Mark Malakanov
- * @version 1.2.2.10
  * 
  **/
 
@@ -32,6 +31,7 @@ import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 
@@ -66,6 +66,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.Iterator;
 
 import javax.imageio.ImageIO;
@@ -78,7 +81,10 @@ import javax.media.j3d.TransparencyAttributes;
 import javax.media.j3d.View;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.filechooser.FileFilter;
 import javax.media.j3d.GraphicsContext3D;
 import javax.media.j3d.ImageComponent;
@@ -96,6 +102,7 @@ import javax.vecmath.Vector4f;
 
 import org.j3d.loaders.stl.STLFileReader;
 import org.j3d.ui.CapturedImageObserver;
+import org.markmal.fanera.GitHubReleaseChecker.GitHubRelease;
 
 import javax.imageio.*;
 
@@ -104,7 +111,8 @@ public class Fanera extends Frame
 		MouseListener, MouseMotionListener, MouseWheelListener, 
 		CapturedImageObserver, MouseBehaviorCallback 
 {	    
-    
+	static final String RELEASE="1.3.1.15";
+	
     BranchGroup sceneGroup; 
     BranchGroup objRoot;
     View view;
@@ -276,6 +284,9 @@ public class Fanera extends Frame
 		//view.setProjectionPolicy(View.PERSPECTIVE_PROJECTION);
 		view.setWindowResizePolicy(View.PHYSICAL_WORLD);
 		view.setTransparencySortingPolicy(View.TRANSPARENCY_SORT_GEOMETRY);
+
+        rotate.setFactor(0.005);
+        translate.setFactor(0.001);
 
 		simpleU.addBranchGraph(objRoot); 
 
@@ -485,21 +496,22 @@ public class Fanera extends Frame
 
     public void toggleProjection(){
     	if (view.getProjectionPolicy() == View.PERSPECTIVE_PROJECTION){
-    		 view.setProjectionPolicy(View.PARALLEL_PROJECTION);
-    		 view.setScreenScalePolicy(View.SCALE_EXPLICIT);
-    		 System.out.printf("switched to PARALLEL_PROJECTION\n");
-    		 this.printPreviewButton.setEnabled(true);
-    		 printPreviewButton.setToolTipText("Open Print Multipage Preview and Selection");
-    	     toggleProjectionButton.setToolTipText("Toggle to Perspective projection");
-
+    		view.setProjectionPolicy(View.PARALLEL_PROJECTION);
+    		view.setScreenScalePolicy(View.SCALE_EXPLICIT);
+    		//System.out.printf("switched to PARALLEL_PROJECTION\n");
+    		this.printPreviewButton.setEnabled(true);
+    		printPreviewButton.setToolTipText("Open Print Multipage Preview and Selection");
+    	    toggleProjectionButton.setToolTipText("Toggle to Perspective projection");
+    		projectionLabel.setText("Projection: Parallel");
     	}
     	else {
     		view.setProjectionPolicy(View.PERSPECTIVE_PROJECTION);
     		view.setScreenScalePolicy(View.SCALE_SCREEN_SIZE);
-   		 	System.out.printf("switched to PERSPECTIVE_PROJECTION\n");
+   		 	//System.out.printf("switched to PERSPECTIVE_PROJECTION\n");
    		 	printPreviewButton.setEnabled(false);
    		 	printPreviewButton.setToolTipText("Change projection to Parallel to enable printing");
    		 	toggleProjectionButton.setToolTipText("Toggle to Parallel projection");
+    		projectionLabel.setText("Projection: Perspective");
     	}
     	
     }
@@ -603,45 +615,56 @@ public class Fanera extends Frame
 	}
 	
 	double parallelProjectionScale = 1;
+	double perspectiveProjectionScale = 1;
+    double transformZoomFactor = 0; 
+
     @Override 
     public void mouseWheelMoved(MouseWheelEvent e){ 
     	double s = view.getScreenScale();
-    	System.out.printf("Scale:%f \n", s );
+    	//System.out.printf("Scale:%f \n", s );
+		//scaleLabel.setText(String.format("Persp Scale: %7.5f", s));
     	if (view.getProjectionPolicy() == View.PARALLEL_PROJECTION){
     	 if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL ){
     		int notches = e.getWheelRotation();
-    		if (notches < 0)
-    			parallelProjectionScale = parallelProjectionScale + 0.01*notches; 
-    		else 
-    			parallelProjectionScale = parallelProjectionScale + 0.01*notches;
+    		parallelProjectionScale = view.getScreenScale();
+    		parallelProjectionScale = parallelProjectionScale + 0.01*notches; 
     		view.setScreenScale(parallelProjectionScale);
-   		 	System.out.printf("Scale PARALLEL_PROJECTION: %f\n",parallelProjectionScale);
+   		 	//System.out.printf("Scale PARALLEL_PROJECTION: %f\n",parallelProjectionScale);
+    		//scaleLabel.setText(String.format("Par Scale: %7.5f", parallelProjectionScale));
     	 }
     	}
    	}
-    	
-    
 
+    
 	@Override
 	public void transformChanged(int type, Transform3D transform) {
 		// TODO Auto-generated method stub
 		if ( type == MouseBehaviorCallback.ZOOM ) {
+
+			//System.out.printf("RF=%f TF=%f\n",rotate.getXFactor(),translate.getXFactor());
+			
+			
 			Vector3d sv = new Vector3d();
 			transform.getScale(sv);
 			Matrix4d m4d = new Matrix4d(); 
 			transform.get(m4d);
-			double sf = m4d.m23; // Mouse Zoom Factor is here 
-			System.out.printf("Persp Zoom Factor:%f \n", sf);
-	        double rf = 0.01 - (0.005*sf);  
-	        double tf = 0.005 - (0.005*sf);  
-			if (view.getProjectionPolicy() == View.PARALLEL_PROJECTION){
-				sf = parallelProjectionScale - 1f;
-				rf = 0.01 - (0.005*sf);
-				tf = 0.0005/sf;
-				System.out.printf("Par Zoom Factor:%f \n", sf);
+			transformZoomFactor = m4d.m23; // Mouse Zoom Factor is here
+			perspectiveProjectionScale = 1 + m4d.m23;  
+	        double rotationFactor    = 0.005 ;//* (1-transformZoomFactor);  
+	        double translationFactor = 0.001 ;//* (1-transformZoomFactor);  
+			
+	        if (view.getProjectionPolicy() == View.PARALLEL_PROJECTION){
+				double tzf = parallelProjectionScale - 1f;
+				rotationFactor    = 0.005 - (0.005*tzf);
+				translationFactor = 0.001 - (0.001*tzf);
+				//System.out.printf("Paral Zoom Factor:%f \n", tzf);
+	    		scaleLabel.setText(String.format("Par Scale: %f", parallelProjectionScale));
+			}else {
+				//System.out.printf("Persp Zoom Factor:%f \n", transformZoomFactor);
+	    		scaleLabel.setText(String.format("Per Scale: %f", perspectiveProjectionScale));
 			}
-	        rotate.setFactor(rf);
-	        translate.setFactor(tf);
+	        rotate.setFactor(rotationFactor);
+	        translate.setFactor(translationFactor);
 		}
 	}
 
@@ -727,8 +750,20 @@ public class Fanera extends Frame
         toggleProjectionButton.addActionListener(this);
         toggleProjectionButton.setToolTipText("Toggle to Perspective projection");
 
+		add(BorderLayout.SOUTH, bottomPanel);
+		projectionLabel.setPreferredSize(new Dimension(200, 20));
+		scaleLabel.setPreferredSize(new Dimension(200, 20));
+		bottomPanel.add(projectionLabel);
+		bottomPanel.add(new JSeparator());
+		bottomPanel.add(scaleLabel);
+
+		projectionLabel.setText("Projection: "
+				+((view.getProjectionPolicy()==View.PARALLEL_PROJECTION)?"Parallel":"Perspective"));
+		scaleLabel.setText(String.format("Scale: %7.5f", 1.0));
+
     }
-    
+    JLabel scaleLabel = new JLabel(); 
+    JLabel projectionLabel = new JLabel(); 
 
 
 	@Override
@@ -743,16 +778,52 @@ public class Fanera extends Frame
 		openFileDialog.setFilenameFilter(
 				(File dir, String name) -> name.endsWith(".stl"));
 		//openFileDialog.setFile("*.stl");
+		openFileDialog.setDirectory( System.getProperty("user.dir") );
 		openFileDialog.setVisible(true);
 		String fileName = openFileDialog.getFile();
 		loadSTL(fileName);
 	}
 	
+	public static void checkNewRelease() {
+		String ghrUrl = "https://api.github.com/repos/markmal/fanera/releases";
+		GitHubReleaseChecker ghrc = new GitHubReleaseChecker(ghrUrl);
+		GitHubRelease ghr = ghrc.findLatestRelease();
+		
+		if (ghrc.compareReleaseStrings(RELEASE, ghr.tag_name) == 1) {
+			System.out.printf("New Release html_url:%s\n",ghr.html_url);
+			int n = JOptionPane.showConfirmDialog(null,
+				    "New version "+ghr.tag_name+" has been released.\n"
+				    +"Do you want to open it in browser for download?\n"+
+				    ghr.html_url,
+				    "New version",
+				    JOptionPane.YES_NO_OPTION);
+			if(n == 0) {
+				System.out.printf("yes \n");
+				if(Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
+				{
+				  try {
+					Desktop.getDesktop().browse(new URI(ghr.html_url));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				}
+			}
+		}
+	}
+	
 	public static void main(String args[]) 
-    { 
+    {
+		checkNewRelease();
+		if (1==1)
+			return;
+		
             Fanera myApp=new Fanera("MainWing_H105_D07.stl"); 
             //myApp.setLocationRelativeTo(null); 
-            myApp.setLocation(10,10); 
+            myApp.setLocation(800,10); 
             myApp.setSize(1004,1024); 
             myApp.setVisible(true); 
     }

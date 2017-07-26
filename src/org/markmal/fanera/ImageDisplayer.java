@@ -1,5 +1,7 @@
 package org.markmal.fanera;
 
+import java.awt.BasicStroke;
+
 /**
  * This class previews 2D image and allows to:
  * - select printer and page properties
@@ -18,6 +20,7 @@ package org.markmal.fanera;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Frame;
@@ -25,6 +28,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Image;
+import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -166,7 +170,7 @@ class ImageDisplayer extends JFrame implements ActionListener {
 
 			if (selectionMode == SELECTION_MODE_PAGES) {
 				if (imageableWidth > 0)
-					drawPrintGrid(g);
+					drawPrintGrid((Graphics2D) g);
 			}
 			if (selectionMode == SELECTION_MODE_FRAGMENT) {
 				drawFragment(g);
@@ -175,12 +179,14 @@ class ImageDisplayer extends JFrame implements ActionListener {
 		}
 
 		private void drawFragment(Graphics g) {
-			g.setColor(Color.GREEN);
+			g.setColor(Color.RED);
 			g.drawRect((int) Math.round(scale * fragmentX), (int) Math.round(scale * fragmentY),
 					(int) Math.round(scale * fragmentWidth), (int) Math.round(scale * fragmentHeight));
 		}
 
-		private void drawPrintGrid(Graphics g) {
+		Stroke line2 = new BasicStroke(2);
+
+		private void drawPrintGrid(Graphics2D g) {
 			for (int p = 0; p < printedPages.size(); p++) {
 				PrintedPage pg = printedPages.get(p);
 				g.setColor(Color.BLUE);
@@ -189,6 +195,7 @@ class ImageDisplayer extends JFrame implements ActionListener {
 			for (int p = 0; p < printedPages.size(); p++) {
 				PrintedPage pg = printedPages.get(p);
 				g.setColor(Color.RED);
+				g.setStroke(line2);
 				if (pg.isSelected)
 					g.drawRect(pg.getScreenX(), pg.getScreenY(), pg.getScreenWidth(), pg.getScreenHeight());
 			}
@@ -217,7 +224,7 @@ class ImageDisplayer extends JFrame implements ActionListener {
 				for (int v = 0; v < verSheetCount; v++) {
 					int y = (int) (Math.round(v * pgHm * pixelsPerMeter));
 					PrintedPage pg = new PrintedPage(h, v, x, y, sw, sh);
-					System.out.printf("PrintedPage: %d,%d, %d,%d\n", x, y, sw, sh);
+					//System.out.printf("PrintedPage: %d,%d, %d,%d\n", x, y, sw, sh);
 					printedPages.add(pg);
 				}
 			}
@@ -229,7 +236,8 @@ class ImageDisplayer extends JFrame implements ActionListener {
 			int notches = e.getWheelRotation();
 			scale += notches * 0.01;
 			scaleLabel.setText(String.format("Scale: %7.5f", scale));
-			System.out.printf("Scale:%f\n", scale);
+			this.updateMouseLabels(e);
+			//System.out.printf("Scale:%f\n", scale);
 			this.invalidate();
 			this.repaint();
 
@@ -240,7 +248,7 @@ class ImageDisplayer extends JFrame implements ActionListener {
 			// toggle a page to be printed
 			int x = e.getX();
 			int y = e.getY();
-			System.out.printf("Click: %d,%d\n", x, y);
+			//System.out.printf("Click: %d,%d\n", x, y);
 
 			for (int p = 0; p < printedPages.size(); p++) {
 				PrintedPage pg = printedPages.get(p);
@@ -248,7 +256,7 @@ class ImageDisplayer extends JFrame implements ActionListener {
 				if (pg.isHit(x, y)) {
 					pg.isSelected = !(pg.isSelected);
 					repaint();
-					System.out.printf("Hit grid: %d,%d\n", pg.gridX, pg.gridY);
+					//System.out.printf("Hit grid: %d,%d\n", pg.gridX, pg.gridY);
 				}
 			}
 			enableButtons();
@@ -270,7 +278,7 @@ class ImageDisplayer extends JFrame implements ActionListener {
 			int x = e.getX();
 			int y = e.getY();
 			mousePressedButton = e.getButton();
-			System.out.printf("Mouse Pressed: %d,%d %d\n", x, y, mousePressedButton);
+			//System.out.printf("Mouse Pressed: %d,%d %d\n", x, y, mousePressedButton);
 
 			if ((mousePressedButton == MouseEvent.BUTTON1) && (selectionMode == SELECTION_MODE_FRAGMENT)) {
 				mouseStartFragmentX = x;
@@ -285,12 +293,15 @@ class ImageDisplayer extends JFrame implements ActionListener {
 				mouseStartDragY = y;
 				indentX0 = indentX;
 				indentY0 = indentY;
+				setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 			}
 
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent arg0) {
+			if (selectionMode != SELECTION_MODE_FRAGMENT) 
+				setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			enableButtons();
 		}
 
@@ -298,7 +309,7 @@ class ImageDisplayer extends JFrame implements ActionListener {
 		public void mouseDragged(MouseEvent e) {
 			int x = e.getX();
 			int y = e.getY();
-			System.out.printf("Mouse Draggeded: %d,%d %d\n", x, y, e.getButton());
+			//System.out.printf("Mouse Draggeded: %d,%d %d\n", x, y, e.getButton());
 
 			if ((mousePressedButton == MouseEvent.BUTTON1) && (selectionMode == SELECTION_MODE_FRAGMENT)) {
 				// drawing fragment rect
@@ -313,14 +324,16 @@ class ImageDisplayer extends JFrame implements ActionListener {
 				indentY = indentY0 + (int) Math.round((y - mouseStartDragY) / scale);
 				repaint();
 			}
-			mouseXunit.setText(String.format("X: %7.5f m", e.getX() / scale / pixelsPerMeter));
-			mouseYunit.setText(String.format("Y: %7.5f m", e.getY() / scale / pixelsPerMeter));
+			updateMouseLabels(e);
 		}
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
 			// System.out.printf("Mouse Moved: %d,%d %d\n",e.getX(), e.getY(),
-			// e.getButton());
+			updateMouseLabels(e);
+		}
+
+		void updateMouseLabels(MouseEvent e) {
 			mouseXunit.setText(String.format("X: %7.5f m", e.getX() / scale / pixelsPerMeter));
 			mouseYunit.setText(String.format("Y: %7.5f m", e.getY() / scale / pixelsPerMeter));
 		}
@@ -337,8 +350,6 @@ class ImageDisplayer extends JFrame implements ActionListener {
 				g.drawImage(bImage, 0, 0, pg.width - 1, pg.height - 1, pg.x - indentX, pg.y - indentY,
 						pg.x - indentX + pg.width - 1, pg.y - indentY + pg.height - 1, null);
 				pages.add(pbi);
-
-				// saveToPNG(pbi,5000, "print_"+(new Integer(p).toString()));
 
 				System.out.printf("Print: %d,%d\n", pg.gridX, pg.gridY);
 			}
@@ -411,6 +422,7 @@ class ImageDisplayer extends JFrame implements ActionListener {
 			selectionMode = SELECTION_MODE_FRAGMENT;
 			selectFragmentButton.setEnabled(false);
 			selectPagesButton.setEnabled(true);
+			imagePanel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 			imagePanel.repaint();
 
 		}
@@ -418,6 +430,7 @@ class ImageDisplayer extends JFrame implements ActionListener {
 			selectionMode = SELECTION_MODE_PAGES;
 			selectFragmentButton.setEnabled(true);
 			selectPagesButton.setEnabled(false);
+			imagePanel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			imagePanel.repaint();
 		}
 		if (target == this.saveAsImagesButton) {
@@ -436,8 +449,17 @@ class ImageDisplayer extends JFrame implements ActionListener {
 		}
 		if (target == helpButton) {
 			// new ImagePrinter(bImage).print();
-			JOptionPane.showMessageDialog(this, "1. Select printer first.\n" + "2. adjust image to fit page(s).\n"
-					+ "3. Select pages to print (they will be highlighted red).\n" + "4. Print.");
+			JOptionPane.showMessageDialog(this, 
+					"In Page Selection mode:\n"  
+					+ " 1. Optionally select printer and page properties\n" 
+					+ " 2. Adjust image to fit page(s) (use right mouse button)\n"
+					+ " 3. Select pages to print (they will be highlighted red)\n" 
+					+ " 4. Print or Save images. Note, file names will have number of a page\n"
+					+ "\n"+
+					"In Fragment Selection mode:\n"  
+					+ " 1. Select fragment\n" 
+					+ " 2. Save image\n"
+					);
 		}
 
 	}
@@ -459,8 +481,8 @@ class ImageDisplayer extends JFrame implements ActionListener {
 			pageFormat = printJob.pageDialog(printJob.defaultPage());
 			imageableWidth = pageFormat.getImageableWidth();
 			imageableHeight = pageFormat.getImageableHeight();
-			System.out.printf("imageableWidth:%f\n", imageableWidth);
-			System.out.printf("imageableHeight:%f\n", imageableHeight);
+			System.out.printf("Page imageableWidth:%f\n", imageableWidth);
+			System.out.printf("Page imageableHeight:%f\n", imageableHeight);
 			this.imagePanel.makePageGrid();
 			printButton.setEnabled(true);
 			printButton.setToolTipText("This will print to the selected printer");
@@ -493,7 +515,7 @@ class ImageDisplayer extends JFrame implements ActionListener {
 	ImageDisplayer(BufferedImage bImage, int pixelsPerMeter) {
 		this.bImage = bImage;
 		this.pixelsPerMeter = pixelsPerMeter;
-		this.setTitle("Off-screen Canvas3D Snapshot");
+		this.setTitle("Print Preview");
 
 		this.addUI();
 
@@ -529,7 +551,7 @@ class ImageDisplayer extends JFrame implements ActionListener {
 	protected JButton saveAsImagesButton = new JButton("Save as Images");
 
 	protected JButton closeButton = new JButton("Close");
-	protected JButton helpButton = new JButton("Help");
+	protected JButton helpButton = new JButton("?");
 
 	protected JLabel mouseXunit = new JLabel("X:");
 	protected JLabel mouseYunit = new JLabel("Y:");
