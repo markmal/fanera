@@ -8,5 +8,8 @@
 	<classpathentry kind="lib" path="org.j3d/jars/org.j3d.core_1.1.0.jar"/>
 	<classpathentry kind="lib" path="oracle/jai/lib/jai_codec.jar"/>
 	<classpathentry kind="lib" path="oracle/jai/lib/jai_core.jar"/>
+	<classpathentry kind="lib" path="oracle/java3d/lib/ext/j3dcore.jar"/>
+	<classpathentry kind="lib" path="oracle/java3d/lib/ext/j3dutils.jar"/>
+	<classpathentry kind="lib" path="oracle/java3d/lib/ext/vecmath.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

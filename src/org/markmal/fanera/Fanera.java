@@ -146,7 +146,7 @@ public class Fanera extends Frame
     float texelToReal_s = 100f; // every 10mm
     
 	//TODO - add as program params
-	boolean sceneAntialiasingEnable = false;
+	boolean sceneAntialiasingEnable = true;
 	boolean lightsEnable = true;
 	Color3f backgroundColor3f = new Color3f(0.75f,0.75f,0.75f); //gray
 	
@@ -237,7 +237,7 @@ public class Fanera extends Frame
     
     public Fanera(String filename) 
     { 
-        super("Fanera"); 
+        super("Fanera "+RELEASE); 
         this.addWindowListener(this); 
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
@@ -261,7 +261,6 @@ public class Fanera extends Frame
 	    simpleU.getViewer().getView().addCanvas3D(offScreenCanvas3D);
 	    
 	    canvas3D.addMouseWheelListener(this);
-	    // on met le plan de projection en arriere par rapport a l'origine 
 	    objRoot = new BranchGroup();         
 	    
 	    addBackground(backgroundColor3f);
@@ -334,6 +333,7 @@ public class Fanera extends Frame
 	        shape.setAppearance(appearance);
 
 	        transformGroup.addChild(sceneGroup);
+	        this.setTitle("Fanera "+RELEASE+" file:"+filename);
 	        return true;
 	    }catch (IOException ex){ 
 	        System.out.println(ex); 
